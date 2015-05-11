@@ -1,5 +1,6 @@
 name = Views Exposed Form Fieldset
 description = Provide an option to render the "exposed form widgets" in a fieldset.
 core = 7.x
+package = Views
 dependencies[] = views
 files[] = views/views_ef_fieldset_display_extender_plugin.inc
