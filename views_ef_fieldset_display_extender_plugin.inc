@@ -110,11 +110,16 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
       $this->view->exposed_widgets = array(
         '#type' => 'fieldset',
-        '#title' => $options['options']['title'],
         'exposed_widgets' => array(
           '#markup' => $this->view->exposed_widgets
         )
       );
+
+      if (!empty($options['options']['title'])) {
+        $this->view->exposed_widgets += array(
+          '#title' => check_plain($options['options']['title']),
+        );
+      }
 
       if (!empty($options['options']['description'])) {
         $this->view->exposed_widgets += array(
