@@ -97,7 +97,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
   function query() {
     $options = $this->display->get_option('views_ef_fieldset');
 
-    if ($options['enabled']) {
+    if ($options['enabled'] && !empty($this->view->exposed_widgets)) {
       $classes = array();
 
       if ($options['options']['collapsible'] == TRUE) {
