@@ -2,7 +2,6 @@
 /**
  * @file
  * Main module file.
- *
  */
 
 /**
@@ -19,56 +18,203 @@ function views_ef_fieldset_views_api() {
  */
 function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
   if (isset($form_state['display'])) {
-    $form['#view'] = $form_state['view'];
-    $form['#display'] = $form_state['display'];
-    $form['#post_render'][] = '_views_ef_fieldset_post_render';
+    $options = $form_state['display']->display_options['views_ef_fieldset'];
+
+    if ($options['enabled']) {
+      $form['filters'] = array(
+        '#type' => isset($options['type']) ? $options['type'] : 'container',
+        '#attributes' => array('class' => array('views_ef_fieldset'))
+      );
+      $form['#attached']['css'] = array(
+        drupal_get_path('module', 'views_ef_fieldset') . '/css/views_ef_fieldset.css'
+      );
+
+      // Get all level 0 items.
+      $roots = _views_ef_fieldset_get_data($options['options']['sort'], 'pid');
+
+      // Loop through all level 0 items.
+      foreach($roots as $field) {
+        $idx = $field['id'];
+
+        if ($field['type'] != 'fieldset') {
+
+          // If it's a filter field
+          if ($field['type'] == 'filter') {
+            $info = $form['#info']['filter-' . $field['id']];
+            $field_name = $info['value'];
+
+            if(isset($form[$field_name]) && is_array($form[$field_name])) {
+              if($field['pid'] == '') {
+                $form['filters'][$field_name] = $form[$field_name] +
+                  array('#weight' => $field['weight'],
+                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
+              }
+              else {
+                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name] +
+                  array('#weight' => $field['weight'],
+                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
+              }
+            }
+            unset($form['#info']['filter-' . $field['id']]);
+            unset($form[$field_name]);
+          }
+
+          // If it's a sort field
+          if ($field['type'] == 'sort') {
+            $field_name = $field['id'];
+
+            if(isset($form[$field_name]) && is_array($form[$field_name])) {
+              if($field['pid'] == '') {
+                $form['filters'][$field_name] = $form[$field_name];
+                $form['filters'][$field_name]['#weight'] = $field['weight'];
+              }
+              else {
+                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
+                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
+              }
+            }
+            unset($form[$field_name]);
+          }
+
+          // If it's the action buttons
+          if ($field['type'] == 'buttons') {
+            $field_name = $field['id'];
+
+            if(isset($form[$field_name]) && is_array($form[$field_name])) {
+              if($field['pid'] == '') {
+                $form['filters'][$field_name] = $form[$field_name];
+                $form['filters'][$field_name]['#weight'] = $field['weight'];
+              }
+              else {
+                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
+                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
+              }
+            }
+            unset($form[$field_name]);
+          }
+        } else {
+          // If it's a fieldset...
+          $form['filters']['fieldset-' . $idx] = array(
+            '#type' => 'fieldset',
+            '#title' => $field['title'],
+            '#description' => $field['description'],
+            '#collapsible' => (bool) $field['collapsible'],
+            '#collapsed' => (bool) $field['collapsed'],
+            '#attributes' => array('class' => array('views-ef-fieldset-fieldset', 'views-ef-fieldset-fieldset-' . $idx)),
+            '#weight' => $field['weight']
+          );
+        }
+
+        // Get all items who are not fieldsets.
+        $data2 = _views_ef_fieldset_get_data($options['options']['sort'], 'type', 'fieldset', '!=');
+        // Get all items who are not fieldsets and having a fieldset as parent.
+        $fields = _views_ef_fieldset_get_data($data2, 'pid', $field['id']);
+
+        // Remove fieldsets that doesn't contains any fields.
+        if ($field['type'] == 'fieldset' && count($fields) == 0) {
+          unset($form['filters']['fieldset-'.$field['id']]);
+        }
+
+        // Loop through each level 1 items.
+        foreach($fields as $field_idx => $field) {
+          // If it's a filter field
+          if ($field['type'] == 'filter') {
+            $info = $form['#info']['filter-' . $field['id']];
+            $field_name = $info['value'];
+
+            if(isset($form[$field_name]) && is_array($form[$field_name])) {
+              if($field['pid'] == '') {
+                $form['filters'][$field_name] = $form[$field_name] +
+                  array('#weight' => $field['weight'],
+                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
+              }
+              else {
+                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name] +
+                  array('#weight' => $field['weight'],
+                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
+              }
+            }
+            unset($form['#info']['filter-' . $field['id']]);
+            unset($form[$field_name]);
+          }
+
+          // If it's a sort field
+          if ($field['type'] == 'sort') {
+            $field_name = $field['id'];
+
+            if(isset($form[$field_name]) && is_array($form[$field_name])) {
+              if($field['pid'] == '') {
+                $form['filters'][$field_name] = $form[$field_name];
+                $form['filters'][$field_name]['#weight'] = $field['weight'];
+              }
+              else {
+                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
+                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
+              }
+            }
+            unset($form[$field_name]);
+          }
+
+          // If it's the action buttons
+          if ($field['type'] == 'buttons') {
+            $field_name = $field['id'];
+
+            if(isset($form[$field_name]) && is_array($form[$field_name])) {
+              if($field['pid'] == '') {
+                $form['filters'][$field_name] = $form[$field_name];
+                $form['filters'][$field_name]['#weight'] = $field['weight'];
+              }
+              else {
+                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
+                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
+              }
+              unset($form[$field_name]);
+            }
+          }
+        }
+      }
+      //$form['widgets'] = $form['filters'];
+      //unset($form['filters']);
+      $form_state['rebuild'] = TRUE;
+    }
   }
 }
 
 /**
- * Custom post render callback used in hook_form_form_id_alter().
+ * Implements hook_theme().
  */
-function _views_ef_fieldset_post_render($form_render, $form) {
-  $options = $form['#display']->display_options['views_ef_fieldset'];
+function views_ef_fieldset_theme() {
+  return array(
+    'views_ef_fieldset_reorder_form' => array(
+      'render element' => 'form',
+      'file' => 'views_ef_fieldset.theme.inc'
+    ),
+  );
+}
 
-  if ($options['enabled']) {
-    $classes = array();
-
-    if ($options['options']['collapsible'] == TRUE) {
-      $classes[] = 'collapsible';
-      drupal_add_library('system', 'drupal.collapse');
+function _views_ef_fieldset_get_data($data, $key, $value = NULL, $operator = '==') {
+  $result = array();
+  foreach ($data as $item) {
+    if (array_key_exists($key, $item)) {
+      switch ($operator) {
+        case '==':
+          if ($item[$key] == $value) {
+            $result[] = $item;
+          }
+          break;
+        case '!=':
+          if ($item[$key] != $value) {
+            $result[] = $item;
+          }
+      }
     }
-    if ($options['options']['collapsed'] == TRUE) {
-      $classes[] = 'collapsed';
-    }
-
-    $exposed_widgets = array(
-      '#type' => 'fieldset',
-      'exposed_widgets' => array(
-        '#markup' => $form_render
-      )
-    );
-
-    if (!empty($options['options']['title'])) {
-      $exposed_widgets += array(
-        '#title' => check_plain($options['options']['title']),
-      );
-    }
-
-    if (!empty($options['options']['description'])) {
-      $exposed_widgets += array(
-        '#description' => check_plain($options['options']['description']),
-      );
-    }
-
-    if (!empty($classes)) {
-      $exposed_widgets += array(
-        '#attributes' => array('class' => $classes)
-      );
-    }
-
-    return drupal_render($exposed_widgets);
   }
+  return $result;
+}
 
-  return $form_render;
+function _views_ef_fieldset_sort_by_weight($a, $b) {
+  if ($a['weight'] == $b['weight']) {
+    return 0;
+  }
+  return ($a['weight'] < $b['weight'] ? -1 : 1);
 }
