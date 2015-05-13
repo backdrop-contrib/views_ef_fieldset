@@ -1,0 +1,7 @@
+.views-exposed-form .views-exposed-widget {
+  float: none;
+}
+
+.views-ef-fieldset-fieldset .form-item {
+  display: inline-table;
+}

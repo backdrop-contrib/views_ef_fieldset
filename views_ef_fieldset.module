@@ -137,10 +137,9 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
           }
         }
       }
+      // Trick
       // see function template_preprocess_views_exposed_form().
-      $form['offset'] = $form['filters'];
-      unset($form['filters']);
-      $form_state['rebuild'] = TRUE;
+      $form['#info']['views_ef_fieldset']['value'] = 'filters';
     }
   }
 }
