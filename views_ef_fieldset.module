@@ -48,9 +48,9 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
                   '#weight' => $field['weight'],
                   '#title' => $form['#info']['filter-' . $field['id']]['label']
                 );
+              unset($form['#info']['filter-' . $field['id']]);
+              unset($form[$field_name]);
             }
-            unset($form['#info']['filter-' . $field['id']]);
-            unset($form[$field_name]);
           }
 
           // If it's a sort field
@@ -60,8 +60,8 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
               $form['filters'][$field_name] = $form[$field_name];
               $form['filters'][$field_name]['#weight'] = $field['weight'];
+              unset($form[$field_name]);
             }
-            unset($form[$field_name]);
           }
 
           // If it's the action buttons
@@ -71,8 +71,8 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
               $form['filters'][$field_name] = $form[$field_name];
               $form['filters'][$field_name]['#weight'] = $field['weight'];
+              $form[$field_name]['#attributes']['style'][] = 'display:none;';
             }
-            unset($form[$field_name]);
           }
         } else {
           // If it's a fieldset...
@@ -109,9 +109,9 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
                   '#weight' => $field['weight'],
                   '#title' => $form['#info']['filter-' . $field['id']]['label']
                 );
+              unset($form['#info']['filter-' . $field['id']]);
+              unset($form[$field_name]);
             }
-            unset($form['#info']['filter-' . $field['id']]);
-            unset($form[$field_name]);
           }
 
           // If it's a sort field
@@ -121,8 +121,8 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
               $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
               $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
+              unset($form[$field_name]);
             }
-            unset($form[$field_name]);
           }
 
           // If it's the action buttons
