@@ -40,20 +40,14 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
 
           // If it's a filter field
           if ($field['type'] == 'filter') {
-            $info = $form['#info']['filter-' . $field['id']];
-            $field_name = $info['value'];
+            $field_name = $form['#info']['filter-' . $idx]['value'];
 
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              if($field['pid'] == '') {
-                $form['filters'][$field_name] = $form[$field_name] +
-                  array('#weight' => $field['weight'],
-                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
-              }
-              else {
-                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name] +
-                  array('#weight' => $field['weight'],
-                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
-              }
+              $form['filters'][$field_name] = $form[$field_name] +
+                array(
+                  '#weight' => $field['weight'],
+                  '#title' => $form['#info']['filter-' . $field['id']]['label']
+                );
             }
             unset($form['#info']['filter-' . $field['id']]);
             unset($form[$field_name]);
@@ -64,14 +58,8 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             $field_name = $field['id'];
 
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              if($field['pid'] == '') {
-                $form['filters'][$field_name] = $form[$field_name];
-                $form['filters'][$field_name]['#weight'] = $field['weight'];
-              }
-              else {
-                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
-                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
-              }
+              $form['filters'][$field_name] = $form[$field_name];
+              $form['filters'][$field_name]['#weight'] = $field['weight'];
             }
             unset($form[$field_name]);
           }
@@ -81,14 +69,8 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             $field_name = $field['id'];
 
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              if($field['pid'] == '') {
-                $form['filters'][$field_name] = $form[$field_name];
-                $form['filters'][$field_name]['#weight'] = $field['weight'];
-              }
-              else {
-                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
-                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
-              }
+              $form['filters'][$field_name] = $form[$field_name];
+              $form['filters'][$field_name]['#weight'] = $field['weight'];
             }
             unset($form[$field_name]);
           }
@@ -119,20 +101,14 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
         foreach($fields as $field_idx => $field) {
           // If it's a filter field
           if ($field['type'] == 'filter') {
-            $info = $form['#info']['filter-' . $field['id']];
-            $field_name = $info['value'];
+            $field_name = $form['#info']['filter-' . $field['id']]['value'];
 
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              if($field['pid'] == '') {
-                $form['filters'][$field_name] = $form[$field_name] +
-                  array('#weight' => $field['weight'],
-                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
-              }
-              else {
-                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name] +
-                  array('#weight' => $field['weight'],
-                    '#title' => $form['#info']['filter-' . $field['id']]['label']);
-              }
+              $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name] +
+                array(
+                  '#weight' => $field['weight'],
+                  '#title' => $form['#info']['filter-' . $field['id']]['label']
+                );
             }
             unset($form['#info']['filter-' . $field['id']]);
             unset($form[$field_name]);
@@ -143,14 +119,8 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             $field_name = $field['id'];
 
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              if($field['pid'] == '') {
-                $form['filters'][$field_name] = $form[$field_name];
-                $form['filters'][$field_name]['#weight'] = $field['weight'];
-              }
-              else {
-                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
-                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
-              }
+              $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
+              $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
             }
             unset($form[$field_name]);
           }
@@ -160,21 +130,16 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             $field_name = $field['id'];
 
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              if($field['pid'] == '') {
-                $form['filters'][$field_name] = $form[$field_name];
-                $form['filters'][$field_name]['#weight'] = $field['weight'];
-              }
-              else {
-                $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
-                $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
-              }
+              $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
+              $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
               unset($form[$field_name]);
             }
           }
         }
       }
-      //$form['widgets'] = $form['filters'];
-      //unset($form['filters']);
+      // see function template_preprocess_views_exposed_form().
+      $form['offset'] = $form['filters'];
+      unset($form['filters']);
       $form_state['rebuild'] = TRUE;
     }
   }
