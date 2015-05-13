@@ -132,7 +132,7 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
             if(isset($form[$field_name]) && is_array($form[$field_name])) {
               $form['filters']['fieldset-' . $idx][$field_name] = $form[$field_name];
               $form['filters']['fieldset-' . $idx][$field_name]['#weight'] = $field['weight'];
-              unset($form[$field_name]);
+              $form[$field_name]['#attributes']['style'][] = 'display:none;';
             }
           }
         }
