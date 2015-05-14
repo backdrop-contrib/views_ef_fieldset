@@ -167,6 +167,16 @@ function views_ef_fieldset_theme() {
   );
 }
 
+/**
+ * This helper function is used to query the sort array and to get
+ * the relevant items, a bit like a sql database.
+ *
+ * @param $data
+ * @param $key
+ * @param null $value
+ * @param string $operator
+ * @return array
+ */
 function _views_ef_fieldset_get_data($data, $key, $value = NULL, $operator = '==') {
   $result = array();
   foreach ($data as $item) {
@@ -185,11 +195,15 @@ function _views_ef_fieldset_get_data($data, $key, $value = NULL, $operator = '==
     }
   }
 
+  // Automatically get sorted results.
   usort($result, '_views_ef_fieldset_sort_by_weight');
 
   return $result;
 }
 
+/**
+ * Internal function used to sort array items by weight.
+ */
 function _views_ef_fieldset_sort_by_weight($a, $b) {
   if ($a['weight'] == $b['weight']) {
     return 0;
