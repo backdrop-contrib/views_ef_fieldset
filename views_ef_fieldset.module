@@ -98,7 +98,7 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
         }
 
         // Loop through each level 1 items.
-        foreach($fields as $field_idx => $field) {
+        foreach($fields as $field) {
           // If it's a filter field
           if ($field['type'] == 'filter') {
             $field_name = $form['#info']['filter-' . $field['id']]['value'];
