@@ -43,6 +43,7 @@ function theme_views_ef_fieldset_reorder_form($vars) {
   }
 
   drupal_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight');
+  drupal_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight', 'subitem-weight');
   drupal_add_tabledrag('reorder-fieldset-filters', 'match', 'parent', 'item-pid', 'item-pid', 'item-id', FALSE);
 
   $header = array(t('Item'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed'), '');

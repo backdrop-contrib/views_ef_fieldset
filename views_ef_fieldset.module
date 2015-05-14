@@ -21,10 +21,17 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
     $options = $form_state['display']->display_options['views_ef_fieldset'];
 
     if ($options['enabled']) {
+
       $form['filters'] = array(
         '#type' => isset($options['type']) ? $options['type'] : 'container',
-        '#attributes' => array('class' => array('views_ef_fieldset'))
+        '#attributes' => array(
+          'class' => array(
+            'views_ef_fieldset',
+            'views_ef_fieldset-type-' . $options['type']
+          )
+        )
       );
+
       $form['#attached']['css'] = array(
         drupal_get_path('module', 'views_ef_fieldset') . '/css/views_ef_fieldset.css'
       );
@@ -36,55 +43,59 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
       foreach($roots as $field) {
         $idx = $field['id'];
 
-        if ($field['type'] != 'fieldset') {
-
-          // If it's a filter field
-          if ($field['type'] == 'filter') {
-            $field_name = $form['#info']['filter-' . $idx]['value'];
-
-            if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              $form['filters'][$field_name] = $form[$field_name] +
-                array(
-                  '#weight' => $field['weight'],
-                  '#title' => $form['#info']['filter-' . $field['id']]['label']
-                );
-              unset($form['#info']['filter-' . $field['id']]);
-              unset($form[$field_name]);
-            }
-          }
-
-          // If it's a sort field
-          if ($field['type'] == 'sort') {
-            $field_name = $field['id'];
-
-            if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              $form['filters'][$field_name] = $form[$field_name];
-              $form['filters'][$field_name]['#weight'] = $field['weight'];
-              unset($form[$field_name]);
-            }
-          }
-
-          // If it's the action buttons
-          if ($field['type'] == 'buttons') {
-            $field_name = $field['id'];
-
-            if(isset($form[$field_name]) && is_array($form[$field_name])) {
-              $form['filters'][$field_name] = $form[$field_name];
-              $form['filters'][$field_name]['#weight'] = $field['weight'];
-              $form[$field_name]['#attributes']['style'][] = 'display:none;';
-            }
-          }
-        } else {
-          // If it's a fieldset...
+        // If it's a fieldset...
+        if ($field['type'] == 'fieldset') {
           $form['filters']['fieldset-' . $idx] = array(
             '#type' => 'fieldset',
             '#title' => $field['title'],
             '#description' => $field['description'],
             '#collapsible' => (bool) $field['collapsible'],
             '#collapsed' => (bool) $field['collapsed'],
-            '#attributes' => array('class' => array('views-ef-fieldset-fieldset', 'views-ef-fieldset-fieldset-' . $idx)),
+            '#attributes' => array(
+              'class' => array(
+                'views-ef-fieldset-fieldset',
+                'views-ef-fieldset-fieldset-' . $idx
+              )
+            ),
             '#weight' => $field['weight']
           );
+        }
+
+        // If it's a filter field
+        if ($field['type'] == 'filter') {
+          $field_name = $form['#info']['filter-' . $idx]['value'];
+
+          if(isset($form[$field_name]) && is_array($form[$field_name])) {
+            $form['filters'][$field_name] = $form[$field_name] +
+              array(
+                '#weight' => $field['weight'],
+                '#title' => $form['#info']['filter-' . $field['id']]['label']
+              );
+            unset($form['#info']['filter-' . $field['id']]);
+            unset($form[$field_name]);
+          }
+        }
+
+        // If it's a sort field
+        if ($field['type'] == 'sort') {
+          $field_name = $field['id'];
+
+          if(isset($form[$field_name]) && is_array($form[$field_name])) {
+            $form['filters'][$field_name] = $form[$field_name];
+            $form['filters'][$field_name]['#weight'] = $field['weight'];
+            unset($form[$field_name]);
+          }
+        }
+
+        // If it's the action buttons
+        if ($field['type'] == 'buttons') {
+          $field_name = $field['id'];
+
+          if(isset($form[$field_name]) && is_array($form[$field_name])) {
+            $form['filters'][$field_name] = $form[$field_name];
+            $form['filters'][$field_name]['#weight'] = $field['weight'];
+            $form[$field_name]['#attributes']['style'][] = 'display:none;';
+          }
         }
 
         // Get all items who are not fieldsets.
@@ -173,6 +184,9 @@ function _views_ef_fieldset_get_data($data, $key, $value = NULL, $operator = '==
       }
     }
   }
+
+  usort($result, '_views_ef_fieldset_sort_by_weight');
+
   return $result;
 }
 

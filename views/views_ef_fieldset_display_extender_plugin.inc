@@ -148,21 +148,21 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
     $data = array();
     foreach($exposed_fields as $field) {
+      $field_options = $options['options']['sort'][$field->options['id']];
       $label = ($field->options['expose']['label']) ? $field->options['expose']['label'] : $field->options['id'];
+
       $data[] = array(
-        'type' => $field->handler_type,
         'id' => $field->options['id'],
+        'type' => $field->handler_type,
+        'weight' => isset($field_options['weight']) ? (int) $field_options['weight'] : 0,
+        'pid' => $field_options['pid'],
         'label' => $label,
-        'weight' => $options['options']['sort'][$field->options['id']]['weight'],
-        'pid' => $options['options']['sort'][$field->options['id']]['pid'],
-        'title' => isset($options['options']['sort'][$field->options['id']]['title']) ? $options['options']['sort'][$field->options['id']]['title'] : $label,
-        'description' => isset($options['options']['sort'][$field->options['id']]['description']) ? $options['options']['sort'][$field->options['id']]['description'] : '',
-        'collapsible' => $options['options']['sort'][$field->options['id']]['collapsible'] ? $options['options']['sort'][$field->options['id']]['collapsible'] : NULL,
-        'collapsed' => $options['options']['sort'][$field->options['id']]['collapsed'] ? $options['options']['sort'][$field->options['id']]['collapsed'] : NULL,
+        'title' => isset($field_options['title']) ? $field_options['title'] : $label,
+        'description' => isset($field_options['description']) ? $field_options['description'] : '',
+        'collapsible' => $field_options['collapsible'] ? $field_options['collapsible'] : FALSE,
+        'collapsed' => $field_options['collapsed'] ? $field_options['collapsed'] : FALSE,
       );
     }
-
-    usort($data, '_views_ef_fieldset_sort_by_weight');
 
     $table_rows = array();
     // Get all root items.
