@@ -18,27 +18,31 @@ function views_ef_fieldset_views_api() {
  */
 function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
   if (isset($form_state['display'])) {
-    $options = $form_state['display']->display_options['views_ef_fieldset'];
+    if (isset($form_state['display']->display_options['views_ef_fieldset'])) {
+      $options = $form_state['display']->display_options['views_ef_fieldset'];
 
-    if ($options['enabled']) {
+      if ($options['enabled']) {
 
-      $form['filters'] = array(
-        '#type' => isset($options['type']) ? $options['type'] : 'container',
-        '#attributes' => array(
-          'class' => array(
-            'views_ef_fieldset',
-            'views_ef_fieldset-type-' . $options['type']
-          )
-        )
-      );
+        if (is_array($options['options']['sort'])) {
+          $form['filters'] = array(
+            '#type' => isset($options['type']) ? $options['type'] : 'container',
+            '#attributes' => array(
+              'class' => array(
+                'views_ef_fieldset',
+                'views_ef_fieldset-type-' . $options['type']
+              )
+            )
+          );
 
-      $form['#attached']['css'] = array(
-        drupal_get_path('module', 'views_ef_fieldset') . '/css/views_ef_fieldset.css'
-      );
+          $form['#attached']['css'] = array(
+            drupal_get_path('module', 'views_ef_fieldset') . '/css/views_ef_fieldset.css'
+          );
 
-      $viewsEFFieldsetData = new ViewsEFFieldsetData($options['options']['sort'], $form);
-      $form['filters']['children'] = $viewsEFFieldsetData->treeToFAPI();
-      $form['#info']['views_ef_fieldset']['value'] = 'filters';
+          $viewsEFFieldsetData = new ViewsEFFieldsetData($options['options']['sort'], $form);
+          $form['filters']['children'] = $viewsEFFieldsetData->treeToFAPI();
+          $form['#info']['views_ef_fieldset']['value'] = 'filters';
+        }
+      }
     }
   }
 }

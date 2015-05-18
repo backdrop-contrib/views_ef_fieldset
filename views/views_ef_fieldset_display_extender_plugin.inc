@@ -154,8 +154,8 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
       $data[] = array(
         'id' => $field->options['id'],
         'type' => $field->handler_type,
-        'weight' => isset($field_options['weight']) ? (int) $field_options['weight'] : 0,
-        'pid' => $field_options['pid'],
+        'weight' => is_numeric($field_options['weight']) ? $field_options['weight'] : 0,
+        'pid' => empty($field_options['pid']) ? '' : $field_options['pid'],
         'label' => $label,
         'title' => isset($field_options['title']) ? $field_options['title'] : $label,
         'description' => isset($field_options['description']) ? $field_options['description'] : '',
@@ -174,7 +174,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         'weight' => array(
           '#item' => $item,
           '#type' => 'weight',
-          '#title' => isset($options['options']['sort'][$item['id']]['title']) ? $options['options']['sort'][$item['id']]['title'] : $item['label'],
+          '#title' => $item['title'],
           '#delta' => count($data),
           '#title_display' => 'invisible',
           '#default_value' => $item['weight'],
@@ -212,7 +212,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
           'title' => array(
             '#type' => 'textfield',
             '#size' => 20,
-            '#default_value' => isset($options['options']['sort'][$item['id']]['title']) ? $options['options']['sort'][$item['id']]['title'] : $item['title'],
+            '#default_value' => $item['title'],
           ),
           'description' => array(
             '#type' => 'textfield',
