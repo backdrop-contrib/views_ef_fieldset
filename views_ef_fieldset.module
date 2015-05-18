@@ -37,7 +37,7 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
       );
 
       $viewsEFFieldsetData = new ViewsEFFieldsetData($options['options']['sort'], $form);
-      $form['filters'] = $viewsEFFieldsetData->treeToFAPI();
+      $form['filters']['children'] = $viewsEFFieldsetData->treeToFAPI();
       $form['#info']['views_ef_fieldset']['value'] = 'filters';
     }
   }
