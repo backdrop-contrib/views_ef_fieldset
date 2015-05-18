@@ -95,7 +95,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
       $exposed_fields[] = $sort_by;
     }
 
-    if ($form['exposed_form_options']['expose_sort_order']['#default_value'] == 1) {
+    if ($form['exposed_form_options']['expose_sort_order']['#default_value'] == 1 && count($sort_fields)) {
       $sort_order = new Stdclass();
       $sort_order->field = 'sort_order';
       $sort_order->handler_type = 'sort';
@@ -164,11 +164,12 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
       );
     }
 
+    $viewsEFFieldsetData = new ViewsEFFieldsetData($data);
     $table_rows = array();
-    // Get all root items.
-    $root = _views_ef_fieldset_get_data($data, 'pid');
 
-    foreach($root as $item) {
+    foreach($viewsEFFieldsetData->buildFlat() as $item) {
+      $item = $item['item'];
+
       $fitem = array(
         'weight' => array(
           '#item' => $item,
@@ -203,10 +204,10 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         ),
         'depth' => array(
           '#type' => 'hidden',
-          '#default_value' => 0,
+          '#default_value' => $item['depth'],
         ),
       );
-      if ($item['type'] = 'fieldset') {
+      if ($item['type'] == 'fieldset') {
         $fitem += array(
           'title' => array(
             '#type' => 'textfield',
@@ -230,98 +231,25 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
       }
 
       $table_rows[$item['id']] = $fitem;
-
-      // Get items having a parent.
-      $fields = _views_ef_fieldset_get_data($data, 'pid', $item['id']);
-      foreach($fields as $item) {
-        $fitem = array(
-          'weight' => array(
-            '#item' => $item,
-            '#type' => 'weight',
-            '#title' => $item['label'],
-            '#delta' => count($data),
-            '#title_display' => 'invisible',
-            '#default_value' => $item['weight'],
-            '#attributes' => array(
-              'class' => array('item-weight', 'subitem-weight')
-            ),
-          ),
-          'type' => array(
-            '#type' => 'hidden',
-            '#default_value' => $item['type'],
-          ),
-          'id' => array(
-            '#type' => 'hidden',
-            '#default_value' => $item['id'],
-            '#size' => 4,
-            '#attributes' => array(
-              'class' => array('item-id')
-            ),
-          ),
-          'pid' => array(
-            '#type' => 'hidden',
-            '#default_value' => $item['pid'],
-            '#size' => 4,
-            '#attributes' => array(
-              'class' => array('item-pid')
-            )
-          ),
-          'depth' => array(
-            '#type' => 'hidden',
-            '#default_value' => (empty($item['pid']) ? '' : 1),
-          ),
-        );
-
-        $table_rows[$item['id']] = $fitem;
-      }
-    }
-
-    // Get items not in a fieldset
-    $data2 = _views_ef_fieldset_get_data($data, 'type', 'fieldset', '!=');
-    $fields = _views_ef_fieldset_get_data($data2, 'pid');
-    foreach($fields as $item) {
-      $fitem = array(
-        'weight' => array(
-          '#item' => $item,
-          '#type' => 'weight',
-          '#title' => $item['label'],
-          '#delta' => count($data),
-          '#title_display' => 'invisible',
-          '#default_value' => $item['weight'],
-          '#attributes' => array(
-            'class' => array('item-weight')
-          ),
-        ),
-        'type' => array(
-          '#type' => 'hidden',
-          '#default_value' => $item['type'],
-        ),
-        'id' => array(
-          '#type' => 'hidden',
-          '#default_value' => $item['id'],
-          '#size' => 4,
-          '#attributes' => array(
-            'class' => array('item-id')
-          ),
-        ),
-        'pid' => array(
-          '#type' => 'hidden',
-          '#default_value' => $item['pid'],
-          '#size' => 4,
-          '#attributes' => array(
-            'class' => array('item-pid')
-          )
-        ),
-        'depth' => array(
-          '#type' => 'hidden',
-          '#default_value' => (empty($item['pid']) ? '' : 1),
-        ),
-      );
-      $table_rows[$item['id']] = $fitem;
     }
 
     $form['views_ef_fieldset']['options']['sort'] = $table_rows;
     $form['views_ef_fieldset']['options']['sort']['#theme'][] = 'views_ef_fieldset_reorder_form';
+  }
+
+  function options_validate(&$form, &$form_state) {
+    parent::options_validate($form, $form_state);
+
+    $sort_options = $form_state['values']['views_ef_fieldset']['options']['sort'];
+
+    foreach($sort_options as $item) {
+      $parent = $sort_options[$item['pid']];
+      if (is_array($parent)) {
+        if ($parent['type'] != 'fieldset') {
+          form_set_error($parent['id'], 'The item ' . $item['id'] . ' must be the child of a fieldset only.');
+        }
+      }
+    }
   }
 
   function options_submit(&$form, &$form_state) {

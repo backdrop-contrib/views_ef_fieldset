@@ -20,16 +20,10 @@ function theme_views_ef_fieldset_reorder_form($vars) {
     $indent = theme('indentation', array('size' => $element['depth']['#default_value']));
     unset($element['depth']);
 
-    if ($element['type']['#default_value'] == 'fieldset') {
+    if ($field['type'] == 'fieldset') {
       $title = '<strong>' . $element['weight']['#title'] . '</strong>';
     } else {
       $title = $element['weight']['#title'];
-    }
-
-    if ($field['type'] == 'fieldset') {
-      $classes[] = 'tabledrag-root';
-    } else {
-      $classes[] = 'tabledrag-leaf';
     }
 
     $row[] = $indent . $title . drupal_render($element['id']) . drupal_render($element['pid']);
