@@ -43,20 +43,6 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
       '#title' => t('Enable fieldset around exposed forms ?'),
     );
 
-    $form['views_ef_fieldset']['type'] = array(
-      '#type' => 'select',
-      '#title' => t('Type of fieldsets'),
-      '#options' => array('container' => 'Simple container', 'vertical_tabs' => 'Vertical tabs'),
-      '#default_value' => isset($options['type']) ?
-        $options['type'] :
-        $defaults['views_ef_fieldset']['type']['default'],
-      '#states' => array(
-        'visible' => array(
-          ':input[name="views_ef_fieldset[enabled]"]' => array('checked' => TRUE),
-        ),
-      ),
-    );
-
     $form['views_ef_fieldset']['options'] = array(
       '#type' => 'fieldset',
       '#title' => t('Exposed form fieldsets'),
@@ -134,33 +120,54 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
     }
 
     foreach ($exposed_fields as $exposed_field_index => $exposed_field) {
-      $fieldset = new StdClass();
-      $fieldset->field = 'fieldset';
-      $fieldset->handler_type = 'fieldset';
-      $fieldset->options = array(
-        'id' => 'fieldset' . $exposed_field_index,
+      $container = new StdClass();
+      $container->field = 'container';
+      $container->handler_type = 'container';
+      $container->container_type = 'fieldset';
+      $container->weight = $exposed_field_index;
+      $container->options = array(
+        'id' => 'container-' . $exposed_field_index,
         'expose' => array(
-          'label' => 'Fieldset ' . $exposed_field_index
+          'label' => 'Container ' . $exposed_field_index
         )
       );
-      $exposed_fields[] = $fieldset;
+      $exposed_fields[] = $container;
     }
 
-    $data = array();
-    foreach($exposed_fields as $field) {
+    $data = array(
+      array(
+      'id' => 'root',
+      'type' => 'container',
+      'weight' => 0,
+      'pid' => '',
+      'label' => 'Root',
+      'title' => isset($options['options']['sort']['root']['title']) ?
+        $options['options']['sort']['root']['title'] : t('Filters'),
+      'description' => $options['options']['sort']['root']['description'],
+      'collapsible' => isset($options['options']['sort']['root']['collapsible']) ?
+        (bool) $options['options']['sort']['root']['collapsible'] : TRUE,
+      'collapsed' => isset($options['options']['sort']['root']['collapsed']) ?
+        (bool) $options['options']['sort']['root']['collapsed'] : TRUE,
+      'container_type' => isset($options['options']['sort']['root']['container_type']) ?
+        $options['options']['sort']['root']['container_type'] : 'fieldset'
+      )
+    );
+
+    foreach($exposed_fields as $index => $field) {
       $field_options = $options['options']['sort'][$field->options['id']];
       $label = ($field->options['expose']['label']) ? $field->options['expose']['label'] : $field->options['id'];
 
       $data[] = array(
         'id' => $field->options['id'],
         'type' => $field->handler_type,
-        'weight' => is_numeric($field_options['weight']) ? $field_options['weight'] : 0,
-        'pid' => empty($field_options['pid']) ? '' : $field_options['pid'],
+        'weight' => isset($field_options['weight']) ? $field_options['weight'] : (isset($field->weight) ? $field->weight : $index - count($exposed_fields)),
+        'pid' => empty($field_options['pid']) ? 'root' : $field_options['pid'],
         'label' => $label,
         'title' => isset($field_options['title']) ? $field_options['title'] : $label,
         'description' => isset($field_options['description']) ? $field_options['description'] : '',
         'collapsible' => $field_options['collapsible'] ? $field_options['collapsible'] : FALSE,
         'collapsed' => $field_options['collapsed'] ? $field_options['collapsed'] : FALSE,
+        'container_type' => isset($field_options['container_type']) ? $field_options['container_type'] : 'fieldset'
       );
     }
 
@@ -207,16 +214,21 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
           '#default_value' => $item['depth'],
         ),
       );
-      if ($item['type'] == 'fieldset') {
+      if ($item['type'] == 'container') {
         $fitem += array(
+          'container_type' => array(
+            '#type' => 'select',
+            '#default_value' => $item['container_type'],
+            '#options' => array('container' => 'Container', 'fieldset' => 'Fieldset', 'vertical_tabs' => 'Vertical tabs')
+          ),
           'title' => array(
             '#type' => 'textfield',
-            '#size' => 20,
+            '#size' => 15,
             '#default_value' => $item['title'],
           ),
           'description' => array(
             '#type' => 'textfield',
-            '#size' => 20,
+            '#size' => 15,
             '#default_value' => $item['description'],
           ),
           'collapsible' => array(
@@ -245,8 +257,8 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
     foreach($sort_options as $item) {
       $parent = $sort_options[$item['pid']];
       if (is_array($parent)) {
-        if ($parent['type'] != 'fieldset') {
-          form_set_error($parent['id'], 'The item ' . $item['id'] . ' must be the child of a fieldset only.');
+        if ($parent['type'] != 'container') {
+          form_set_error($item['id'], 'The item ' . $item['id'] . ' must be the child of a container only.');
         }
       }
     }

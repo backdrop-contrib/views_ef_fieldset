@@ -24,16 +24,6 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
       if ($options['enabled']) {
 
         if (is_array($options['options']['sort'])) {
-          $form['filters'] = array(
-            '#type' => isset($options['type']) ? $options['type'] : 'container',
-            '#attributes' => array(
-              'class' => array(
-                'views_ef_fieldset',
-                'views_ef_fieldset-type-' . $options['type']
-              )
-            )
-          );
-
           $form['#attached']['css'] = array(
             drupal_get_path('module', 'views_ef_fieldset') . '/css/views_ef_fieldset.css'
           );
@@ -58,4 +48,3 @@ function views_ef_fieldset_theme() {
     ),
   );
 }
-

@@ -2,6 +2,6 @@
   float: none;
 }
 
-.views-ef-fieldset-fieldset .form-item {
+.views-ef-fieldset-container .form-item {
   display: inline-table;
 }

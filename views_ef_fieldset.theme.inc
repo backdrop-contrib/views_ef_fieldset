@@ -19,13 +19,17 @@ function theme_views_ef_fieldset_reorder_form($vars) {
 
     $indent = theme('indentation', array('size' => $field['depth']));
 
-    if ($field['type'] == 'fieldset') {
-      $title = '<strong>' . $field['title'] . '</strong>';
-    } else {
-      $title = $field['title'];
+    $title = $field['title'];
+    if ($field['type'] == 'container') {
+      if ($field['pid'] == '') {
+        $title = '<em>' . $title . '</em>';
+        $classes = array('tabledrag-root');
+      }
+      $title = '<strong>' . $title . '</strong>';
     }
 
     $row[] = $indent . $title . drupal_render($element['id']) . drupal_render($element['pid']);
+    $row[] = drupal_render($element['container_type']);
     $row[] = drupal_render($element['title']);
     $row[] = drupal_render($element['description']);
     $row[] = drupal_render($element['collapsible']);
@@ -39,7 +43,7 @@ function theme_views_ef_fieldset_reorder_form($vars) {
   drupal_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight', 'subitem-weight');
   drupal_add_tabledrag('reorder-fieldset-filters', 'match', 'parent', 'item-pid', 'item-pid', 'item-id', FALSE);
 
-  $header = array(t('Item'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed'), '');
+  $header = array(t('Item'), t('Type'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed'), '');
 
   $output = '';
   $output .= theme('table',

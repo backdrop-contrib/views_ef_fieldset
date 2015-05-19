@@ -39,13 +39,13 @@ class ViewsEFFieldsetData {
    * @param int $depth
    * @return array
    */
-  private function parseTree(array &$elements, $parentId = '', $depth = -1) {
+  private function parseTree(array &$elements, $rootParentID = '', $depth = -1) {
     $branch = array();
     ++$depth;
 
     foreach ($elements as $key => $element) {
       $element['depth'] = $depth;
-      if ($element['pid'] != $parentId) {
+      if ($element['pid'] != $rootParentID) {
         continue;
       }
       $branch[] = array(
@@ -143,24 +143,24 @@ class ViewsEFFieldsetData {
         }
       }
 
-      if (!empty($item['children']) && $item['item']['type'] == 'fieldset') {
+      if (!empty($item['children']) && $item['item']['type'] == 'container') {
 
-        $element['fieldset-' . $item['item']['id']] = array(
-          '#type' => 'fieldset',
+        $element['container-' . $item['item']['id']] = array(
+          '#type' => $item['item']['container_type'],
           '#title' => $item['item']['title'],
           '#description' => $item['item']['description'],
           '#collapsible' => (bool) $item['item']['collapsible'],
           '#collapsed' => (bool) $item['item']['collapsed'],
           '#attributes' => array(
             'class' => array(
-              'views-ef-fieldset-fieldset',
-              'views-ef-fieldset-fieldset-' . $item['item']['id']
+              'views-ef-fieldset-container',
+              'views-ef-fieldset-container-' . $item['item']['id']
             )
           ),
           '#weight' => $item['item']['weight']
         );
 
-        $element['fieldset-' . $item['item']['id']]['children'] = $this->recursiveTreeToFAPI($item['children'], $form, $element['fieldset-'.$item['item']['id']]);
+        $element['container-' . $item['item']['id']]['children'] = $this->recursiveTreeToFAPI($item['children'], $form, $element['container-'.$item['item']['id']]);
       }
     }
   }
