@@ -12,18 +12,17 @@ function theme_views_ef_fieldset_reorder_form($vars) {
   $table_rows = array();
 
   foreach (element_children($form) as $key) {
-    $classes = array('draggable');
     $row = array();
+    $classes = array('draggable');
     $element = $form[$key];
     $field = $element['weight']['#item'];
 
-    $indent = theme('indentation', array('size' => $element['depth']['#default_value']));
-    unset($element['depth']);
+    $indent = theme('indentation', array('size' => $field['depth']));
 
     if ($field['type'] == 'fieldset') {
-      $title = '<strong>' . $element['weight']['#title'] . '</strong>';
+      $title = '<strong>' . $field['title'] . '</strong>';
     } else {
-      $title = $element['weight']['#title'];
+      $title = $field['title'];
     }
 
     $row[] = $indent . $title . drupal_render($element['id']) . drupal_render($element['pid']);
