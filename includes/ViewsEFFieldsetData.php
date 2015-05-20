@@ -25,12 +25,7 @@ class ViewsEFFieldsetData {
    * @return array
    */
   public function buildTreeData() {
-    // Build the tree.
-    $elements = $this->elements;
-
-    $tree = $this->parseTree($elements);
-
-    return $tree;
+    return $this->parseTree($this->elements);
   }
 
   /**
@@ -39,18 +34,16 @@ class ViewsEFFieldsetData {
    * @param int $depth
    * @return array
    */
-  private function parseTree(array &$elements, $rootParentID = '', $depth = -1) {
+  private function parseTree(array &$elements, $rootParentID = '') {
     $branch = array();
-    ++$depth;
 
     foreach ($elements as $key => $element) {
-      $element['depth'] = $depth;
       if ($element['pid'] != $rootParentID) {
         continue;
       }
       $branch[] = array(
         'item' => $element,
-        'children' => $this->parseTree($elements, $element['id'], $depth)
+        'children' => $this->parseTree($elements, $element['id'])
       );
     }
 
@@ -73,6 +66,7 @@ class ViewsEFFieldsetData {
     );
 
     foreach($recursive_iter_iter as $item) {
+      $item['item']['depth'] = $recursive_iter_iter->getDepth();
       $data[] = $item;
     }
 
@@ -91,9 +85,8 @@ class ViewsEFFieldsetData {
 
   public function treeToFAPI() {
     $elements = array();
-    $tree = $this->buildTreeData();
 
-    $this->recursiveTreeToFAPI($tree, $this->form, $elements);
+    $this->recursiveTreeToFAPI($this->buildTreeData(), $this->form, $elements);
 
     return $elements;
   }

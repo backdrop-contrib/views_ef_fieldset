@@ -11,7 +11,6 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
     $options['views_ef_fieldset'] = array(
       'enabled' => array('default' => FALSE, 'bool' => TRUE),
-      'type' => array('default' => 'container'),
       'options' => array(),
     );
 
@@ -55,21 +54,20 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
     $exposed_fields = array_values($this->view->display_handler->get_handlers('filter'));
     foreach ($exposed_fields as $exposed_field_index => $exposed_field) {
-      if (!$exposed_field->options['exposed']) {
+      if (!$exposed_field->can_expose() || !$exposed_field->is_exposed()) {
         unset($exposed_fields[$exposed_field_index]);
       }
     }
 
     $sort_fields = array_values($this->view->display_handler->get_handlers('sort'));
     foreach($sort_fields as $sort_fields_index => $sort_field) {
-      if (!$sort_field->options['exposed']) {
+      if (!$sort_field->can_expose() || !$sort_field->is_exposed()) {
         unset($sort_fields[$sort_fields_index]);
       }
     }
 
-    if (count($sort_fields)) {
+    if (!empty($sort_fields)) {
       $sort_by = new Stdclass();
-      $sort_by->field = 'sort_by';
       $sort_by->handler_type = 'sort';
       $sort_by->options = array(
         'id' => 'sort_by',
@@ -83,7 +81,6 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
     if ($form['exposed_form_options']['expose_sort_order']['#default_value'] == 1 && count($sort_fields)) {
       $sort_order = new Stdclass();
-      $sort_order->field = 'sort_order';
       $sort_order->handler_type = 'sort';
       $sort_order->options = array(
         'id' => 'sort_order',
@@ -96,7 +93,6 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
     }
 
     $submit_button = new Stdclass();
-    $submit_button->field = 'submit_button';
     $submit_button->handler_type = 'buttons';
     $submit_button->options = array(
       'id' => 'submit',
@@ -108,7 +104,6 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
     if ($form['exposed_form_options']['reset_button']['#default_value'] == 1) {
       $reset_button = new Stdclass();
-      $reset_button->field = 'reset_button';
       $reset_button->handler_type = 'buttons';
       $reset_button->options = array(
         'id' => 'reset',
@@ -121,7 +116,6 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
 
     foreach ($exposed_fields as $exposed_field_index => $exposed_field) {
       $container = new StdClass();
-      $container->field = 'container';
       $container->handler_type = 'container';
       $container->container_type = 'fieldset';
       $container->weight = $exposed_field_index;
@@ -165,8 +159,8 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         'label' => $label,
         'title' => isset($field_options['title']) ? $field_options['title'] : $label,
         'description' => isset($field_options['description']) ? $field_options['description'] : '',
-        'collapsible' => $field_options['collapsible'] ? $field_options['collapsible'] : FALSE,
-        'collapsed' => $field_options['collapsed'] ? $field_options['collapsed'] : FALSE,
+        'collapsible' => $field_options['collapsible'] ? (bool) $field_options['collapsible'] : FALSE,
+        'collapsed' => $field_options['collapsed'] ? (bool) $field_options['collapsed'] : FALSE,
         'container_type' => isset($field_options['container_type']) ? $field_options['container_type'] : 'fieldset'
       );
     }
@@ -177,7 +171,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
     foreach($viewsEFFieldsetData->buildFlat() as $item) {
       $item = $item['item'];
 
-      $fitem = array(
+      $table_rows[$item['id']] = array(
         'weight' => array(
           '#item' => $item,
           '#type' => 'weight',
@@ -215,7 +209,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         ),
       );
       if ($item['type'] == 'container') {
-        $fitem += array(
+        $table_rows[$item['id']] += array(
           'container_type' => array(
             '#type' => 'select',
             '#default_value' => $item['container_type'],
@@ -233,16 +227,14 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
           ),
           'collapsible' => array(
             '#type' => 'checkbox',
-            '#default_value' => (bool) $item['collapsible'],
+            '#default_value' => $item['collapsible'],
           ),
           'collapsed' => array(
             '#type' => 'checkbox',
-            '#default_value' => (bool) $item['collapsed'],
+            '#default_value' => $item['collapsed'],
           )
         );
       }
-
-      $table_rows[$item['id']] = $fitem;
     }
 
     $form['views_ef_fieldset']['options']['sort'] = $table_rows;
