@@ -137,7 +137,6 @@ class ViewsEFFieldsetData {
       }
 
       if (!empty($item['children']) && $item['item']['type'] == 'container') {
-
         $element['container-' . $item['item']['id']] = array(
           '#type' => $item['item']['container_type'],
           '#title' => $item['item']['title'],
@@ -153,7 +152,8 @@ class ViewsEFFieldsetData {
           '#weight' => $item['item']['weight']
         );
 
-        $element['container-' . $item['item']['id']]['children'] = $this->recursiveTreeToFAPI($item['children'], $form, $element['container-'.$item['item']['id']]);
+        $element['container-' . $item['item']['id']]['children'] = array();
+        $this->recursiveTreeToFAPI($item['children'], $form, $element['container-'.$item['item']['id']]);
       }
     }
   }
