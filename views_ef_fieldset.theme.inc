@@ -34,6 +34,7 @@ function theme_views_ef_fieldset_reorder_form($vars) {
     $row[] = drupal_render($element['description']);
     $row[] = drupal_render($element['collapsible']);
     $row[] = drupal_render($element['collapsed']);
+    $row[] = drupal_render($element['collapsed_if_no_exposed_input']);
     $row[] = drupal_render($element['weight']);
 
     $table_rows[] = array('data' => $row, 'class' => $classes, 'id' => 'display-row-' . $key);
@@ -43,7 +44,7 @@ function theme_views_ef_fieldset_reorder_form($vars) {
   drupal_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight', 'subitem-weight');
   drupal_add_tabledrag('reorder-fieldset-filters', 'match', 'parent', 'item-pid', 'item-pid', 'item-id', FALSE);
 
-  $header = array(t('Item'), t('Type'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed'), '');
+  $header = array(t('Item'), t('Type'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed always'), t('Collapsed only if no filters are active'), '');
 
   $output = '';
   $output .= theme('table',

@@ -12,12 +12,14 @@ class ViewsEFFieldsetData {
   /**
    * @param array $elements
    * @param array $form
+   * @param object $view
    * @param array $resulting_array
    */
-  function __construct(array $data, array &$form = array()) {
+  function __construct(array $data, array &$form = array(), $view = NULL) {
     $this->data = $data;
     $this->elements = $data;
     $this->form = &$form;
+    $this->view = $view;
   }
 
   /**
@@ -142,7 +144,7 @@ class ViewsEFFieldsetData {
           '#title' => $item['item']['title'],
           '#description' => $item['item']['description'],
           '#collapsible' => (bool) $item['item']['collapsible'],
-          '#collapsed' => (bool) $item['item']['collapsed'],
+          '#collapsed' => (bool) ($item['item']['collapsed'] || (!empty($item['item']['collapsed_if_no_exposed_input']) && $this->view && !array_filter($this->view->get_exposed_input()))),
           '#attributes' => array(
             'class' => array(
               'views-ef-fieldset-container',

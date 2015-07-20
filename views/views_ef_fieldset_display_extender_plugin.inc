@@ -142,6 +142,8 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         (bool) $options['options']['sort']['root']['collapsible'] : TRUE,
       'collapsed' => isset($options['options']['sort']['root']['collapsed']) ?
         (bool) $options['options']['sort']['root']['collapsed'] : TRUE,
+      'collapsed_if_no_exposed_input' => isset($options['options']['sort']['root']['collapsed_if_no_exposed_input']) ?
+        (bool) $options['options']['sort']['root']['collapsed_if_no_exposed_input'] : FALSE,
       'container_type' => isset($options['options']['sort']['root']['container_type']) ?
         $options['options']['sort']['root']['container_type'] : 'fieldset'
       )
@@ -161,6 +163,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         'description' => isset($field_options['description']) ? $field_options['description'] : '',
         'collapsible' => $field_options['collapsible'] ? (bool) $field_options['collapsible'] : FALSE,
         'collapsed' => $field_options['collapsed'] ? (bool) $field_options['collapsed'] : FALSE,
+        'collapsed_if_no_exposed_input' => $field_options['collapsed_if_no_exposed_input'] ? (bool) $field_options['collapsed_if_no_exposed_input'] : FALSE,
         'container_type' => isset($field_options['container_type']) ? $field_options['container_type'] : 'fieldset'
       );
     }
@@ -232,7 +235,11 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
           'collapsed' => array(
             '#type' => 'checkbox',
             '#default_value' => $item['collapsed'],
-          )
+          ),
+          'collapsed_if_no_exposed_input' => array(
+            '#type' => 'checkbox',
+            '#default_value' => $item['collapsed_if_no_exposed_input'],
+          ),
         );
       }
     }
