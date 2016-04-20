@@ -6,15 +6,14 @@
 
 class views_ef_fieldset_display_extender_plugin extends views_plugin_display_extender {
 
-  function option_definition() {
-    $options = parent::option_definition();
-
+  function options_definition_alter(&$options) {
+    parent::options_definition_alter($options);
     $options['views_ef_fieldset'] = array(
-      'enabled' => array('default' => FALSE, 'bool' => TRUE),
-      'options' => array(),
+      'contains' => array(
+        'enabled' => array('default' => FALSE, 'bool' => TRUE),
+        'options' => array(),
+      ),
     );
-
-    return $options;
   }
 
   /**
