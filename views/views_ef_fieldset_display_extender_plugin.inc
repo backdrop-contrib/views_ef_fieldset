@@ -128,24 +128,30 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
       $exposed_fields[] = $container;
     }
 
+    $root_options = !empty($options['options']['sort']['root']) ? $options['options']['sort']['root'] : array();
+    // Add defaults
+    $root_options += array(
+      'title' => t('Filters'),
+      'description' => '',
+      'collapsible' => TRUE,
+      'collapsed' => TRUE,
+      'collapsed_if_no_exposed_input' => FALSE,
+      'container_type' => 'fieldset'
+    );
+
     $data = array(
       array(
-      'id' => 'root',
-      'type' => 'container',
-      'weight' => 0,
-      'pid' => '',
-      'label' => 'Root',
-      'title' => isset($options['options']['sort']['root']['title']) ?
-        $options['options']['sort']['root']['title'] : t('Filters'),
-      'description' => $options['options']['sort']['root']['description'],
-      'collapsible' => isset($options['options']['sort']['root']['collapsible']) ?
-        (bool) $options['options']['sort']['root']['collapsible'] : TRUE,
-      'collapsed' => isset($options['options']['sort']['root']['collapsed']) ?
-        (bool) $options['options']['sort']['root']['collapsed'] : TRUE,
-      'collapsed_if_no_exposed_input' => isset($options['options']['sort']['root']['collapsed_if_no_exposed_input']) ?
-        (bool) $options['options']['sort']['root']['collapsed_if_no_exposed_input'] : FALSE,
-      'container_type' => isset($options['options']['sort']['root']['container_type']) ?
-        $options['options']['sort']['root']['container_type'] : 'fieldset'
+        'id' => 'root',
+        'type' => 'container',
+        'weight' => 0,
+        'pid' => '',
+        'label' => 'Root',
+        'title' => $root_options['title'],
+        'description' => $root_options['description'],
+        'collapsible' => (bool) $root_options['collapsible'],
+        'collapsed' => (bool) $root_options['collapsed'],
+        'collapsed_if_no_exposed_input' => (bool) $root_options['collapsed_if_no_exposed_input'],
+        'container_type' => $root_options['container_type'],
       )
     );
 
@@ -161,9 +167,9 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
         'label' => $label,
         'title' => isset($field_options['title']) ? $field_options['title'] : $label,
         'description' => isset($field_options['description']) ? $field_options['description'] : '',
-        'collapsible' => $field_options['collapsible'] ? (bool) $field_options['collapsible'] : FALSE,
-        'collapsed' => $field_options['collapsed'] ? (bool) $field_options['collapsed'] : FALSE,
-        'collapsed_if_no_exposed_input' => $field_options['collapsed_if_no_exposed_input'] ? (bool) $field_options['collapsed_if_no_exposed_input'] : FALSE,
+        'collapsible' => !empty($field_options['collapsible']),
+        'collapsed' => !empty($field_options['collapsed']),
+        'collapsed_if_no_exposed_input' => !empty($field_options['collapsed_if_no_exposed_input']),
         'container_type' => isset($field_options['container_type']) ? $field_options['container_type'] : 'fieldset'
       );
     }
@@ -254,7 +260,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
     $sort_options = $form_state['values']['views_ef_fieldset']['options']['sort'];
 
     foreach($sort_options as $item) {
-      $parent = $sort_options[$item['pid']];
+      $parent = isset($sort_options[$item['pid']]) ? $sort_options[$item['pid']] : null;
       if (is_array($parent)) {
         if ($parent['type'] != 'container') {
           form_set_error($item['id'], 'The item ' . $item['id'] . ' must be the child of a container only.');
