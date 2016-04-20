@@ -256,20 +256,28 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
   function options_validate(&$form, &$form_state) {
     parent::options_validate($form, $form_state);
 
-    $sort_options = $form_state['values']['views_ef_fieldset']['options']['sort'];
+    $sort_options = array();
 
-    foreach($sort_options as $item) {
-      $parent = isset($sort_options[$item['pid']]) ? $sort_options[$item['pid']] : null;
-      if (is_array($parent)) {
-        if ($parent['type'] != 'container') {
-          form_set_error($item['id'], 'The item ' . $item['id'] . ' must be the child of a container only.');
+    if (array_key_exists('views_ef_fieldset', $form_state['values'])) {
+      $sort_options = $form_state['values']['views_ef_fieldset']['options']['sort'];
+    }
+
+    if (!empty($sort_options)) {
+      foreach ($sort_options as $item) {
+        $parent = $sort_options[$item['pid']];
+        if (is_array($parent)) {
+          if ($parent['type'] != 'container') {
+            form_set_error($item['id'], 'The item ' . $item['id'] . ' must be the child of a container only.');
+          }
         }
       }
     }
   }
 
   function options_submit(&$form, &$form_state) {
-    $this->display->set_option('views_ef_fieldset', $form_state['values']['views_ef_fieldset']);
+    if (array_key_exists('views_ef_fieldset', $form_state['values'])) {
+      $this->display->set_option('views_ef_fieldset', $form_state['values']['views_ef_fieldset']);
+    }
     parent::options_submit($form, $form_state);
   }
 }
