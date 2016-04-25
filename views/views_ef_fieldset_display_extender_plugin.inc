@@ -22,7 +22,7 @@ class views_ef_fieldset_display_extender_plugin extends views_plugin_display_ext
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
-    if (substr($form['#section'], -20) != 'exposed_form_options') {
+    if ($form_state['section'] != 'exposed_form_options') {
       return;
     }
 
