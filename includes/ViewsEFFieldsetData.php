@@ -105,12 +105,17 @@ class ViewsEFFieldsetData {
       if ($item['item']['type'] == 'filter') {
         $field_name = $form['#info']['filter-' . $item['item']['id']]['value'];
 
-        if(isset($form[$field_name]) && is_array($form[$field_name])) {
+        if (isset($form[$field_name]) && is_array($form[$field_name])) {
           $element[$field_name] = $form[$field_name] +
             array(
               '#weight' => $item['item']['weight'],
               '#title' => $form['#info']['filter-' . $item['item']['id']]['label']
             );
+
+          if (!empty($form[$field_name]['#tree'])) {
+            $element[$field_name]['#type'] = 'fieldset';
+          }
+
           unset($form['#info']['filter-' . $item['item']['id']]);
           unset($form[$field_name]);
         }
