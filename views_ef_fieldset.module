@@ -21,7 +21,7 @@ function views_ef_fieldset_form_views_exposed_form_alter(&$form, &$form_state) {
     if (isset($form_state['display']->display_options['views_ef_fieldset'])) {
       $options = $form_state['display']->display_options['views_ef_fieldset'];
 
-      if ($options['enabled']) {
+      if (!empty($options['enabled'])) {
         if (is_array($options['options']['sort'])) {
           $form['#attached']['css'] = array(
             drupal_get_path('module', 'views_ef_fieldset') . '/css/views_ef_fieldset.css'
