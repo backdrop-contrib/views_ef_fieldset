@@ -28,31 +28,34 @@ function theme_views_ef_fieldset_reorder_form($vars) {
       $title = '<strong>' . $title . '</strong>';
     }
 
-    $row[] = $indent . $title . drupal_render($element['id']) . drupal_render($element['pid']);
-    $row[] = drupal_render($element['container_type']);
-    $row[] = drupal_render($element['title']);
-    $row[] = drupal_render($element['description']);
-    $row[] = drupal_render($element['collapsible']);
-    $row[] = drupal_render($element['collapsed']);
-    $row[] = drupal_render($element['collapsed_if_no_exposed_input']);
-    $row[] = drupal_render($element['weight']);
+    $row[] = $indent . $title . backdrop_render($element['id']) . backdrop_render($element['pid']);
+    $row[] = backdrop_render($element['container_type']);
+    $row[] = backdrop_render($element['title']);
+    $row[] = backdrop_render($element['description']);
+    $row[] = backdrop_render($element['collapsible']);
+    $row[] = backdrop_render($element['collapsed']);
+    $row[] = backdrop_render($element['weight']);
 
-    $table_rows[] = array('data' => $row, 'class' => $classes, 'id' => 'display-row-' . $key);
+    $table_rows[] = array(
+      'data' => $row,
+      'class' => $classes,
+      'id' => 'display-row-' . $key,
+    );
   }
 
-  drupal_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight');
-  drupal_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight', 'subitem-weight');
-  drupal_add_tabledrag('reorder-fieldset-filters', 'match', 'parent', 'item-pid', 'item-pid', 'item-id', FALSE);
+  backdrop_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight');
+  backdrop_add_tabledrag('reorder-fieldset-filters', 'order', 'sibling', 'item-weight', 'subitem-weight');
+  backdrop_add_tabledrag('reorder-fieldset-filters', 'match', 'parent', 'item-pid', 'item-pid', 'item-id', FALSE);
 
-  $header = array(t('Item'), t('Type'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed always'), t('Collapsed only if no filters are active'), '');
+  $header = array(t('Item'), t('Type'), t('Title'), t('Description'), t('Collapsible'), t('Collapsed'), '');
 
   $output = '';
   $output .= theme('table',
     array(
-      'header' => $header,
-      'rows' => $table_rows,
-      'attributes' => array('id' => 'reorder-fieldset-filters'),
-    ));
+    'header' => $header,
+    'rows' => $table_rows,
+    'attributes' => array('id' => 'reorder-fieldset-filters'),
+  ));
 
   return $output;
 }

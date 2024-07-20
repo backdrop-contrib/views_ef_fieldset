@@ -12,14 +12,12 @@ class ViewsEFFieldsetData {
   /**
    * @param array $elements
    * @param array $form
-   * @param object $view
    * @param array $resulting_array
    */
-  function __construct(array $data, array &$form = array(), $view = NULL) {
+  function __construct(array $data, array &$form = array()) {
     $this->data = $data;
     $this->elements = $data;
     $this->form = &$form;
-    $this->view = $view;
   }
 
   /**
@@ -27,7 +25,12 @@ class ViewsEFFieldsetData {
    * @return array
    */
   public function buildTreeData() {
-    return $this->parseTree($this->elements);
+    // Build the tree.
+    $elements = $this->elements;
+
+    $tree = $this->parseTree($elements);
+
+    return $tree;
   }
 
   /**
@@ -36,16 +39,18 @@ class ViewsEFFieldsetData {
    * @param int $depth
    * @return array
    */
-  private function parseTree(array &$elements, $rootParentID = '') {
+  private function parseTree(array &$elements, $rootParentID = '', $depth = -1) {
     $branch = array();
+    ++$depth;
 
     foreach ($elements as $key => $element) {
+      $element['depth'] = $depth;
       if ($element['pid'] != $rootParentID) {
         continue;
       }
       $branch[] = array(
         'item' => $element,
-        'children' => $this->parseTree($elements, $element['id'])
+        'children' => $this->parseTree($elements, $element['id'], $depth)
       );
     }
 
@@ -68,7 +73,6 @@ class ViewsEFFieldsetData {
     );
 
     foreach($recursive_iter_iter as $item) {
-      $item['item']['depth'] = $recursive_iter_iter->getDepth();
       $data[] = $item;
     }
 
@@ -87,8 +91,9 @@ class ViewsEFFieldsetData {
 
   public function treeToFAPI() {
     $elements = array();
+    $tree = $this->buildTreeData();
 
-    $this->recursiveTreeToFAPI($this->buildTreeData(), $this->form, $elements);
+    $this->recursiveTreeToFAPI($tree, $this->form, $elements);
 
     return $elements;
   }
@@ -105,17 +110,12 @@ class ViewsEFFieldsetData {
       if ($item['item']['type'] == 'filter') {
         $field_name = $form['#info']['filter-' . $item['item']['id']]['value'];
 
-        if (isset($form[$field_name]) && is_array($form[$field_name])) {
+        if(isset($form[$field_name]) && is_array($form[$field_name])) {
           $element[$field_name] = $form[$field_name] +
             array(
               '#weight' => $item['item']['weight'],
               '#title' => $form['#info']['filter-' . $item['item']['id']]['label']
             );
-
-          if (!empty($form[$field_name]['#tree'])) {
-            $element[$field_name]['#type'] = 'fieldset';
-          }
-
           unset($form['#info']['filter-' . $item['item']['id']]);
           unset($form[$field_name]);
         }
@@ -144,12 +144,13 @@ class ViewsEFFieldsetData {
       }
 
       if (!empty($item['children']) && $item['item']['type'] == 'container') {
+
         $element['container-' . $item['item']['id']] = array(
           '#type' => $item['item']['container_type'],
           '#title' => $item['item']['title'],
           '#description' => $item['item']['description'],
           '#collapsible' => (bool) $item['item']['collapsible'],
-          '#collapsed' => (bool) ($item['item']['collapsed'] || (!empty($item['item']['collapsed_if_no_exposed_input']) && $this->view && !array_filter($this->view->get_exposed_input()))),
+          '#collapsed' => (bool) $item['item']['collapsed'],
           '#attributes' => array(
             'class' => array(
               'views-ef-fieldset-container',
@@ -159,8 +160,7 @@ class ViewsEFFieldsetData {
           '#weight' => $item['item']['weight']
         );
 
-        $element['container-' . $item['item']['id']]['children'] = array();
-        $this->recursiveTreeToFAPI($item['children'], $form, $element['container-'.$item['item']['id']]);
+        $element['container-' . $item['item']['id']]['children'] = $this->recursiveTreeToFAPI($item['children'], $form, $element['container-'.$item['item']['id']]);
       }
     }
   }
